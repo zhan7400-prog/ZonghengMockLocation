@@ -39,6 +39,7 @@ jobs:
           echo "kotlin.jvm.target.validation.mode=warning" >> "$PROJECT_DIR/gradle.properties"
 
           BUILD_FILE="$PROJECT_DIR/app/build.gradle.kts"
+          MANIFEST_FILE="$PROJECT_DIR/app/src/main/AndroidManifest.xml"
 
           sed -i 's/JavaVersion.VERSION_1_8/JavaVersion.VERSION_17/g' "$BUILD_FILE"
           sed -i 's/jvmTarget = "1.8"/jvmTarget = "17"/g' "$BUILD_FILE"
@@ -60,8 +61,13 @@ jobs:
             mv "$BUILD_FILE.tmp" "$BUILD_FILE"
           fi
 
+          if ! grep -q "ACCESS_MOCK_LOCATION" "$MANIFEST_FILE"; then
+            sed -i '/<manifest/a\    <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />' "$MANIFEST_FILE"
+          fi
+
           cat "$PROJECT_DIR/gradle.properties"
           cat "$BUILD_FILE"
+          cat "$MANIFEST_FILE"
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4

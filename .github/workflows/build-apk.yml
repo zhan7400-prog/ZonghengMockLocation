@@ -27,7 +27,7 @@ jobs:
             echo "PROJECT_DIR=project/ZonghengMockLocation" >> $GITHUB_ENV
           else
             echo "没有找到 settings.gradle.kts"
-            find project -maxdepth 3 -type f
+            find project -maxdepth 4 -type f
             exit 1
           fi
 
@@ -40,6 +40,11 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -48,7 +53,7 @@ jobs:
       - name: Build debug APK
         run: |
           cd "$PROJECT_DIR"
-          gradle assembleDebug
+          gradle assembleDebug --stacktrace --no-daemon
           mkdir -p "$GITHUB_WORKSPACE/apk-output"
           cp app/build/outputs/apk/debug/*.apk "$GITHUB_WORKSPACE/apk-output/"
 
